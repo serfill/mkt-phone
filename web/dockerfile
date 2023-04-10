@@ -1,0 +1,16 @@
+FROM alpine
+
+RUN apk update && apk upgrade && apk add python3 && apk add -U tzdata
+
+WORKDIR /app
+
+COPY requirements.txt requirements.txt
+COPY app.py /app
+COPY static /app/static
+COPY templates /app/templates
+RUN python3 -m venv .venv
+RUN /app/.venv/bin/pip3 install -r /app/requirements.txt
+
+EXPOSE 5001
+
+CMD [".venv/bin/python3", "app.py"]

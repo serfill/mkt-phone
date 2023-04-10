@@ -1,0 +1,68 @@
+version: '3.2'
+services:
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    ports:
+      - 15672:15672
+      - 5672:5672
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbit
+      - RABBITMQ_DEFAULT_PASS=mrl2X0jwnYuCCiKFTshG7WKyOAhfDo
+      - RABBITMQ_DEFAULT_VHOST=mkt
+      - TZ=Asia/Krasnoyarsk
+    networks:
+      - phone
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+  reciever:
+    build: ./reciever
+    restart: always
+    ports:
+      - 5000:5000
+    environment:
+      - TZ=Asia/Krasnoyarsk
+    depends_on:
+      - rabbitmq
+    networks:
+      - phone
+  mongo:
+    image: mongo:6.0.4
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongodb
+      - MONGO_INITDB_ROOT_PASSWORD=Cc03Wz5XX3iI3uY3
+      - TZ=Asia/Krasnoyarsk
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - phone
+  worker:
+    build: ./worker
+    restart: always
+    environment:
+      - TZ=Asia/Krasnoyarsk
+    depends_on:
+      - mongo
+    networks:
+      - phone
+  web:
+    build: ./web
+    restart: always
+    environment:
+      - TZ=Asia/Krasnoyarsk
+    depends_on:
+      - mongo
+    networks:
+      - phone
+    ports:
+      - 5001:5001
+networks:
+  phone:
+volumes:
+  rabbitmq:
+  mongodb:
+
+
