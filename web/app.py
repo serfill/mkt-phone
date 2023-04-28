@@ -88,13 +88,17 @@ def root():
 
 @app.route("/web/call/")
 def WebCall():
-    call = coll_call.find().sort('time')
+    call = coll_call.find().sort('time',-1)
     return render_template("WebCall.html", call=call)
 
+@app.route("/web/call/test/")
+def GetTest():
+    call = coll_call.find().sort('time',-1)
+    return render_template("TestCall.html", call=call)
 
-@ app.route("/web/call/status/<id>")
+@app.route("/web/call/status/<id>")
 def WebCallStatus(id):
-    call = coll_call.find({"status": int(id)})
+    call = coll_call.find({"status": int(id)}).sort('time',-1)
     return render_template("WebCall.html", call=call)
 
 

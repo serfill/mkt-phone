@@ -3,12 +3,22 @@ import sys
 import os
 import json
 import datetime
+import requests
 from pymongo import MongoClient
+
 
 db_connection = MongoClient("mongodb://mongodb:Cc03Wz5XX3iI3uY3@mongo")
 db_base = db_connection["phone"]
 coll_phone = db_base["phone"]
 coll_userkey = db_base['userkey']
+
+#def sendMessage(dt, num):
+#    token = "2035324623:AAGACtvZ551m9V--yTYF9cFuegGejylSsLg"
+#    chat_id = "-1001941363918"
+#    message = "*" + num + "* - " + dt
+#    send_text = 'https://api.telegram.org/bot' + token + '/sendMessage?chat_id=' + chat_id + '&parse_mode=Markdown&text=' + message
+#    response = requests.get(send_text)
+#    return response
 
 
 def main():
@@ -45,11 +55,12 @@ def main():
                     except Exception as e:
                         # print(srcJson)
                         print(e)
-                        coll_phone.delete_one(
-                            {'$and': [{'client': srcJson['from']}, {'status': 1}]})
                         insDict = {
                             "client": srcJson['from'], "time": srcJson['time'], "status": 1}
+                        #sendMessage(srcJson['time'], srcJson['from'])
                     finally:
+                        coll_phone.delete_one(
+                            {'$and': [{'client': srcJson['from']}, {'status': 1}]})
                         print(insDict)
                         coll_phone.insert_one(insDict)
                         tmpIncoming.pop(srcJson['uuid'])
