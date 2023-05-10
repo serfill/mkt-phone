@@ -41,8 +41,13 @@ def main():
             if srcJson['direction'] == 'incoming':
                 # Определяем начальный статус
                 if srcJson['state'] == 'START':
-                    # Создаем переменную. Ответ = false, можно закрывать = false
-                    tmpIncoming[srcJson['uuid']] = [False, False]
+                    # Создаем переменную. Ответ = false, можно закрывать = false, Приоритетная линия
+                    if srcJson['to'] == '83912051045':
+                        tmpIncoming[srcJson['uuid']] = [False, False, True]
+                    else:
+                        tmpIncoming[srcJson['uuid']] = [False, False, False]
+                    # Обновление статуса при входящем звонке
+                    coll_phone.delete_one({'$and': [{'client': srcJson['from']}, {'status': 1}]})
                 if srcJson['state'] == 'ANSWER' and srcJson['uuid'] in tmpIncoming:
                     tmpIncoming[srcJson['uuid']][0] = True
                 if srcJson['state'] == 'END' and srcJson['uuid'] in tmpIncoming:
@@ -51,16 +56,14 @@ def main():
                     try:
                         srcJson['callstatus']
                         insDict = {"client": srcJson['from'], "time": srcJson['time'], "status": 0,
-                                   "recordUrl": srcJson["recordUrl"], "duration": srcJson["duration"]}
+                                   "recordUrl": srcJson["recordUrl"], "duration": srcJson["duration"], "important": tmpIncoming[srcJson['uuid']][2]}
                     except Exception as e:
                         # print(srcJson)
                         print(e)
                         insDict = {
-                            "client": srcJson['from'], "time": srcJson['time'], "status": 1}
+                            "client": srcJson['from'], "time": srcJson['time'], "status": 1, "important": tmpIncoming[srcJson['uuid']][2]}
                         #sendMessage(srcJson['time'], srcJson['from'])
                     finally:
-                        coll_phone.delete_one(
-                            {'$and': [{'client': srcJson['from']}, {'status': 1}]})
                         print(insDict)
                         coll_phone.insert_one(insDict)
                         tmpIncoming.pop(srcJson['uuid'])
@@ -81,8 +84,16 @@ def main():
                             print(e)
 
             if srcJson['direction'] == 'external':
-                coll_phone.update_one({'$and': [{'client': srcJson['to']}, {'status': 1}]}, {
-                                      '$set': {'status': 2}})
+                # coll_phone.update_one({'$and': [{'client': srcJson['to']}, {'status': 1}]}, {
+                #                       '$set': {'status': 2}})
+                r = coll_phone.update_one({'$and': [{'client': {'$regex': srcJson['to']}}, {'status': 1}]}, {
+                                      '$set': {'status': 2, 'callid': srcJson['uuid']}})
+                if srcJson['state'] == 'HANGUP':
+                    try:
+                        coll_phone.update_one({'callid':srcJson['uuid']}, {'$set': {'recordUrl': srcJson['recordUrl']}})
+                    except Exception as e:
+                        print(e)
+                print(r)
 
         except Exception as e:
             print(e.with_traceback)

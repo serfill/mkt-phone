@@ -26,7 +26,11 @@
         {% for entry in call %}
         <tr>
             <!-- <td>{{ entry.client }}</td> -->
-            <td>{{ "%s %s %s %s"|format(entry.client[0:1], entry.client[1:4], entry.client[4:7], entry.client[7:11]) }}</td>
+            {% if entry.important == True %}
+                <td><font color="#C30000">{{ "%s %s %s %s"|format(entry.client[0:1], entry.client[1:4], entry.client[4:7], entry.client[7:11]) }}</font></td>
+            {% else %}
+                <td >{{ "%s %s %s %s"|format(entry.client[0:1], entry.client[1:4], entry.client[4:7], entry.client[7:11]) }}</td>
+            {% endif %}
             <!-- <td>{{ entry.Operator }}</td> -->
             <td>{{ entry.time }}</td>
             <td>
