@@ -12,15 +12,6 @@ db_base = db_connection["phone"]
 coll_phone = db_base["phone"]
 coll_userkey = db_base['userkey']
 
-#def sendMessage(dt, num):
-#    token = "2035324623:AAGACtvZ551m9V--yTYF9cFuegGejylSsLg"
-#    chat_id = "-1001941363918"
-#    message = "*" + num + "* - " + dt
-#    send_text = 'https://api.telegram.org/bot' + token + '/sendMessage?chat_id=' + chat_id + '&parse_mode=Markdown&text=' + message
-#    response = requests.get(send_text)
-#    return response
-
-
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         'rabbitmq', 5672, 'mkt', pika.PlainCredentials('rabbit', 'mrl2X0jwnYuCCiKFTshG7WKyOAhfDo')))
